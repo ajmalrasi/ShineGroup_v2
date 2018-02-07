@@ -8,15 +8,33 @@ import java.io.Serializable;
 
 public class Member implements Serializable {
 
-    String id, name, email;
+    String id, name, email,dp,created;
 
     public Member() {
     }
 
-    public Member(String id, String name, String email) {
+    public Member(String id, String name, String email,String created, String dp) {
         this.id = id;
         this.name = name;
         this.email = email;
+        this.created = created;
+        this.dp = dp;
+    }
+
+    public String getDp() {
+        return dp;
+    }
+
+    public void setDp(String dp) {
+        this.dp = dp;
+    }
+
+    public String getCreated() {
+        return created;
+    }
+
+    public void setCreated(String created) {
+        this.created = created;
     }
 
     public String getId() {

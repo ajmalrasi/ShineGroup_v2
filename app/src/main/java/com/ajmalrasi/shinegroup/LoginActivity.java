@@ -35,6 +35,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ajmalrasi.shinegroup.chat.app.EndPoints;
+import com.ajmalrasi.shinegroup.chat.model.Member;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -69,17 +72,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.com:hello", "bar@example.com:world"
     };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask mAuthTask = null;
+
 
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-    private SessionManager session;
+    //Login Data stored in Shared Preference
+    private Session session;
     private SQLiteHandler db;
 
     @Override
@@ -95,6 +96,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailView.addTextChangedListener(new MyTextWatcher(mEmailView));
 
         mPasswordView = findViewById(R.id.password);
+
+        /**
+         * Attempt login if the member has finished entering password
+         */
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -121,7 +126,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         db = new SQLiteHandler(getApplicationContext());
 
         // Session manager
-        session = new SessionManager(getApplicationContext());
+        session = new Session(getApplicationContext());
 
         // Check if user is already logged in or not
         if (session.isLoggedIn()) {
@@ -132,14 +137,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
+    /**
+     *
+     */
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
             return;
         }
-
         getLoaderManager().initLoader(0, null, this);
     }
 
+    /**
+     * Request Contacts Permission
+     * @return bool
+     */
     private boolean mayRequestContacts() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true;
@@ -183,9 +194,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
 
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
 
         // Reset errors.
         mEmailView.setError(null);
@@ -224,19 +232,40 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            checkLogin(email,password);
         }
     }
 
-    private boolean isEmailValid(String email) {
+    /**
+     *
+     * @param email
+     * @return
+     */
+    private static boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return email.contains("@");
+        return !TextUtils.isEmpty(email) &&
+                android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
+
+    /**
+     *
+     * @param password
+     * @return
+     */
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
         return password.length() > 4;
+    }
+
+    /**
+     * Change Focus of Input Field
+     * @param view
+     */
+    private void requestFocus(View view) {
+        if (view.requestFocus()) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
     }
 
     /**
@@ -318,7 +347,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailView.setAdapter(adapter);
     }
 
-
+    /**
+     *
+     */
     private interface ProfileQuery {
         String[] PROJECTION = {
                 ContactsContract.CommonDataKinds.Email.ADDRESS,
@@ -335,153 +366,91 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private void checkLogin(final String email, final String password) {
         // Tag used to cancel the request
         String tag_string_req = "req_login";
-
-//        pDialog.setMessage("Logging in ...");
-//        showDialog();
-
+        //pDialog.setMessage("Logging in ...");
+        //showDialog();
         StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_LOGIN, new Response.Listener<String>() {
-
+                EndPoints.LOGIN, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.d(TAG, "Login Response: " + response.toString());
-//                hideDialog();
-
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    boolean error = jObj.getBoolean("error");
-
-                    // Check for error node in json
-                    if (!error) {
+                Log.e(TAG, "Login Response: " + response);
+                try{
+                    JSONObject obj = new JSONObject(response);
+                    // check for error flag in Json
+                    if (!obj.getBoolean("error")) {
+                        //no error
                         // user successfully logged in
-                        // Create login session
-                        session.setLogin(true);
+                        JSONObject memberObj = obj.getJSONObject("member");
+                        Member member = new Member(memberObj.getString("member_id"),
+                                memberObj.getString("name"),
+                                memberObj.getString("email_id"),
+                                memberObj.getString("created"),
+                                memberObj.getString("dp"));
+                        // storing member in shared preferences
+                        AppController.getInstance().getPrefManager().storeMember(member);
 
-                        // Now store the user in SQLite
-                        String uid = jObj.getString("uid");
-
-                        JSONObject user = jObj.getJSONObject("user");
-                        String name = user.getString("name");
-                        String email = user.getString("email");
-                        String dp = user.getString("dp");
-                        String phone = user.getString("phone");
-
-                        // Inserting row in users table
-                        db.addUser(name, email, uid, dp, phone);
-
-
-                        // Launch main activity
-                        Intent intent = new Intent(LoginActivity.this,
-                                MainActivity.class);
-                        startActivity(intent);
+                        // start main activity
+                        showProgress(false);
+                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
                         finish();
-                    } else {
-                        // Error in login. Get the error message
-                        String errorMsg = jObj.getString("error_msg");
-                        Toast.makeText(getApplicationContext(),
-                                errorMsg, Toast.LENGTH_LONG).show();
+                    }else{
+                        showProgress(false);
+                        if (obj.getJSONObject("error").getString("message").equalsIgnoreCase("Invalid Password")) {
+                            mPasswordView.setError(getString(R.string.error_incorrect_password));
+                            requestFocus(mPasswordView);
+                        }
+                        else if (obj.getJSONObject("error").getString("message").equalsIgnoreCase("Invalid Email")) {
+                            mEmailView.setError(getString(R.string.err_msg_email));
+                            requestFocus(mEmailView);
+                        }else {
+                            Toast.makeText(getApplicationContext(), "" +
+                                            obj.getJSONObject("error").getString("message"),
+                                    Toast.LENGTH_LONG).show();
+                            Log.d(TAG,obj.getJSONObject("error").getString("message"));
+                        }
                     }
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                }catch (JSONException e){
+                    showProgress(false);
+                    Log.e(TAG, "json parsing error: " + e.getMessage());
+                    Toast.makeText(getApplicationContext(), "Json parse error: " +
+                            e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-
             }
         }, new Response.ErrorListener() {
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //hideDialog();
+                NetworkResponse networkResponse = error.networkResponse;
+                Log.e(TAG, "Volley error: " + error.getMessage() + ", code: " + networkResponse);
+                Toast.makeText(getApplicationContext(), "Volley error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }) {
 
             @Override
             protected Map<String, String> getParams() {
                 // Posting parameters to login url
-                Map<String, String> params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<>();
                 params.put("email", email);
                 params.put("password", password);
-
                 return params;
             }
-
         };
-
         // Adding request to request queue
+        // Send login request to URL with parameters
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-                checkLogin(mEmail,mPassword);
-
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
-    }
-
-    private void requestFocus(View view) {
-        if (view.requestFocus()) {
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        }
-    }
 
     // Validating email
     private boolean validateEmail() {
         String email = mEmailView.getText().toString().trim();
-
-        if (email.isEmpty() || !isValidEmail(email)) {
+        if (email.isEmpty() || !isEmailValid(email)) {
             mEmailView.setError(getString(R.string.err_msg_email));
             requestFocus(mEmailView);
             return false;
         } else {
             //mEmailView.setErrorEnabled(false);
         }
-
         return true;
-    }
-
-    private static boolean isValidEmail(String email) {
-        return !TextUtils.isEmpty(email) && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
 
@@ -500,9 +469,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         public void afterTextChanged(Editable editable) {
             switch (view.getId()) {
-//                case R.id.input_name:
-//                    validateName();
-//                    break;
+                //case R.id.input_name:
+                //   validateName();
+                //   break;
                 case R.id.email:
                     validateEmail();
                     break;

@@ -9,41 +9,39 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
-public class SessionManager {
+public class Session {
     // LogCat tag
-    private static String TAG = SessionManager.class.getSimpleName();
+    private static String TAG = Session.class.getSimpleName();
 
     // Shared Preferences
-    SharedPreferences pref;
+    private SharedPreferences pref;
 
-    Editor editor;
-    Context _context;
+    private Editor editor;
+    private Context _context;
 
     // Shared pref mode
-    int PRIVATE_MODE = 0;
+    private int PRIVATE_MODE = 0;
 
     // Shared preferences file name
-    private static final String PREF_NAME = "ShineGroup";
+    private static final String PREF_NAME = "shine_group";
 
-    private static final String KEY_IS_LOGGEDIN = "isLoggedIn";
+    private static final String KEY_IS_LOGGED = "isLoggedIn";
 
-    public SessionManager(Context context) {
+    public Session(Context context) {
         this._context = context;
         pref = _context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
         editor = pref.edit();
     }
 
     public void setLogin(boolean isLoggedIn) {
-
-        editor.putBoolean(KEY_IS_LOGGEDIN, isLoggedIn);
+        editor.putBoolean(KEY_IS_LOGGED, isLoggedIn);
 
         // commit changes
         editor.commit();
-
-        Log.d(TAG, "User login session modified!");
+        Log.d(TAG, "Member login session modified!");
     }
 
     public boolean isLoggedIn(){
-        return pref.getBoolean(KEY_IS_LOGGEDIN, false);
+        return pref.getBoolean(KEY_IS_LOGGED, false);
     }
 }

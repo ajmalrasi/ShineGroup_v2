@@ -8,7 +8,7 @@ import android.app.Application;
 import android.content.Intent;
 import android.text.TextUtils;
 
-import com.ajmalrasi.shinegroup.chat.helper.MyPreferenceManager;
+import com.ajmalrasi.shinegroup.chat.helper.SessionManager;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
@@ -20,7 +20,7 @@ public class AppController extends Application {
 
     private static AppController mInstance;
 
-    private MyPreferenceManager pref;
+    private SessionManager pref;
 
     @Override
     public void onCreate() {
@@ -40,9 +40,9 @@ public class AppController extends Application {
         return mRequestQueue;
     }
 
-    public MyPreferenceManager getPrefManager() {
+    public SessionManager getPrefManager() {
         if (pref == null) {
-            pref = new MyPreferenceManager(this);
+            pref = new SessionManager(this);
         }
 
         return pref;

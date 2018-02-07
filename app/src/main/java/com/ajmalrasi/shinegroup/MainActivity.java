@@ -20,19 +20,17 @@ import android.widget.TextView;
 import com.ajmalrasi.shinegroup.chat.activity.ChatActivity;
 import com.squareup.picasso.Picasso;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private SQLiteHandler db;
-    private SessionManager session;
+    private Session session;
     TextView navUserName;
     TextView navUserEmail;
     ImageView navUserPic;
@@ -48,7 +46,7 @@ public class MainActivity extends AppCompatActivity
         db = new SQLiteHandler(getApplicationContext());
 
         // session manager
-        session = new SessionManager(getApplicationContext());
+        session = new Session(getApplicationContext());
 
         if (!session.isLoggedIn()) {
             logoutUser();
