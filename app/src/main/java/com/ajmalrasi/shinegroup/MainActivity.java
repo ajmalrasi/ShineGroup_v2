@@ -18,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ajmalrasi.shinegroup.chat.activity.ChatActivity;
+import com.ajmalrasi.shinegroup.chat.helper.SessionManager;
+import com.ajmalrasi.shinegroup.chat.model.Member;
 import com.squareup.picasso.Picasso;
 
 import java.net.MalformedURLException;
@@ -29,35 +31,36 @@ import java.util.HashMap;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private SQLiteHandler db;
-    private Session session;
+    private SessionManager sessionManager;
     TextView navUserName;
     TextView navUserEmail;
     ImageView navUserPic;
+    Member member;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        /**
+         * Check if a member is logged in or not
+         */
+        sessionManager = new SessionManager(getApplicationContext());
+        if (!sessionManager.isLoggedIn()) {
+            logoutUser();
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // SqLite database handler
-        db = new SQLiteHandler(getApplicationContext());
 
-        // session manager
-        session = new Session(getApplicationContext());
+        // Fetching member details from shared preferences
 
-        if (!session.isLoggedIn()) {
-            logoutUser();
-        }
+        member = AppController.getInstance().getPrefManager().getMember();
 
-        // Fetching user details from sqlite
-        HashMap<String, String> user = db.getUserDetails();
-
-        String name = user.get("name");
-        String email = user.get("email");
-        String dp = user.get("dp");
+        String name = member.getName();
+        String email = member.getEmail();
+        String dp = member.getDp();
 
 
         FloatingActionButton fab =  findViewById(R.id.fab);
@@ -120,14 +123,11 @@ public class MainActivity extends AppCompatActivity
      * preferences Clears the user data from sqlite users table
      * */
     private void logoutUser() {
-        session.setLogin(false);
-
-        db.deleteUsers();
-
+        AppController.getInstance().logout();
+        finish();
         // Launching the login activity
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
-        finish();
     }
 
     @Override
@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_logout) {
+            logoutUser();
             return true;
         }
 
@@ -174,8 +175,7 @@ public class MainActivity extends AppCompatActivity
             // Launch main activity
             Intent intent = new Intent(this,
                     ChatActivity.class);
-            startActivity(intent);
-            finish();
+                    startActivity(intent);
         } else if (id == R.id.nav_news) {
 
         } else if (id == R.id.nav_settings) {

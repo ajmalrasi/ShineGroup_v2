@@ -86,15 +86,15 @@ public class MyGcmPushReceiver extends GcmListenerService {
             try {
                 JSONObject datObj = new JSONObject(data);
 
-                String chatRoomId = datObj.getString("chat_room_id");
+                String chatRoomId = datObj.getString("chat_id");
 
                 JSONObject mObj = datObj.getJSONObject("message");
                 Message message = new Message();
                 message.setMessage(mObj.getString("message"));
                 message.setId(mObj.getString("message_id"));
-                message.setCreatedAt(mObj.getString("created_at"));
+                message.setCreatedAt(mObj.getString("created"));
 
-                JSONObject uObj = datObj.getJSONObject("user");
+                JSONObject uObj = datObj.getJSONObject("member");
 
                 // skip the message if the message belongs to same user as
                 // the user would be having the same message when he was sending
@@ -106,7 +106,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
 
                 Member member = new Member();
                 member.setId(uObj.getString("member_id"));
-                member.setEmail(uObj.getString("email"));
+                member.setEmail(uObj.getString("email_id"));
                 member.setName(uObj.getString("name"));
                 message.setMember(member);
 
@@ -133,7 +133,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
 
             } catch (JSONException e) {
                 Log.e(TAG, "json parsing error: " + e.getMessage());
-                Toast.makeText(getApplicationContext(), "Json parse error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "Json parse error: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
 
         } else {
@@ -163,7 +163,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 JSONObject uObj = datObj.getJSONObject("member");
                 Member member = new Member();
                 member.setId(uObj.getString("member_id"));
-                member.setEmail(uObj.getString("email"));
+                member.setEmail(uObj.getString("email_id"));
                 member.setName(uObj.getString("name"));
                 message.setMember(member);
 
@@ -193,7 +193,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 } 
             }catch (JSONException e) {
                 Log.e(TAG, "json parsing error: " + e.getMessage());
-                Toast.makeText(getApplicationContext(), "Json parse error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "Json parse error: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
         } else {
             // the push notification is silent, may be other operations needed
