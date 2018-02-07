@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -57,8 +58,9 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
-        recyclerView = findViewById(R.id.recycler_view);
+        Toolbar toolbar = findViewById(R.id.toolbar_chat_room);
+        setSupportActionBar(toolbar);
+        recyclerView = findViewById(R.id.recycler_view_chat_room);
 
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -71,23 +73,27 @@ public class ChatActivity extends AppCompatActivity {
                     String token = intent.getStringExtra("token");
                     subscribeToGlobalTopic();
 
-                    Toast.makeText(getApplicationContext(), "GCM registration token: " + token, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(),
+                            "GCM registration token: " +
+                            token, Toast.LENGTH_LONG).show();
 
                 } else if (intent.getAction().equals(Config.SENT_TOKEN_TO_SERVER)) {
                     // gcm registration id is stored in our server's MySQL
 
-                    Toast.makeText(getApplicationContext(), "GCM registration token is stored in server!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(),
+                            "GCM registration token is stored in server!",
+                            Toast.LENGTH_LONG).show();
 
                 } else if (intent.getAction().equals(Config.PUSH_NOTIFICATION)) {
                     // new push notification is received
 
-                    Toast.makeText(getApplicationContext(), "Push notification is received!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(),
+                            "Push notification is received!",
+                            Toast.LENGTH_LONG).show();
                     handlePushNotification(intent);
                 }
             }
-
         };
-
 
         chatRoomArrayList = new ArrayList<>();
         mAdapter = new ChatAdapter(this, chatRoomArrayList);
@@ -98,28 +104,22 @@ public class ChatActivity extends AppCompatActivity {
         ));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
-
-        recyclerView.addOnItemTouchListener(new ChatAdapter.RecyclerTouchListener(getApplicationContext(), recyclerView, new ChatAdapter.ClickListener() {
+        recyclerView.addOnItemTouchListener(new ChatAdapter.RecyclerTouchListener(getApplicationContext(),
+                recyclerView, new ChatAdapter.ClickListener() {
             @Override
             public void onClick(View view, int position) {
                 // when chat is clicked, launch full chat thread activity
                 ChatRoom chatRoom = chatRoomArrayList.get(position);
-                ////////////////////////////////////////////////////
                 Intent intent = new Intent(ChatActivity.this, ChatRoomActivity.class);
-                /////////////////////////////////////////////////
                 intent.putExtra("chat_id", chatRoom.getId());
                 intent.putExtra("name", chatRoom.getName());
                 startActivity(intent);
             }
-
             @Override
             public void onLongClick(View view, int position) {
 
             }
         }));
-
-
-
 
         /**
          * Always check for google play services availability before
@@ -129,7 +129,6 @@ public class ChatActivity extends AppCompatActivity {
             registerGCM();
             fetchChatRooms();
         }
-
     }
 
     /**
@@ -186,7 +185,7 @@ public class ChatActivity extends AppCompatActivity {
                     JSONObject obj = new JSONObject(response);
 
                     // check for error flag
-                    if (obj.getBoolean("error") == false) {
+                    if (!obj.getBoolean("error")) {
                         JSONArray chatRoomsArray = obj.getJSONArray("chats");
                         for (int i = 0; i < chatRoomsArray.length(); i++) {
                             JSONObject chatRoomsObj = (JSONObject) chatRoomsArray.get(i);
@@ -196,7 +195,6 @@ public class ChatActivity extends AppCompatActivity {
                             cr.setLastMessage("");
                             cr.setUnreadCount(0);
                             cr.setTimestamp(chatRoomsObj.getString("created"));
-
                             chatRoomArrayList.add(cr);
                         }
 

@@ -58,8 +58,8 @@ public class ChatRoomActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar_chat_room);
+        setSupportActionBar(toolbar);
 
         inputMessage = findViewById(R.id.message2);
         btnSend = findViewById(R.id.btn_send);
@@ -68,15 +68,18 @@ public class ChatRoomActivity extends AppCompatActivity {
         chatRoomId = intent.getStringExtra("chat_id");
         String title = intent.getStringExtra("name");
 
-//        getSupportActionBar().setTitle(title);
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (title!=null){
+            //getSupportActionBar().setTitle(title);
+            //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
 
         if (chatRoomId == null) {
             Toast.makeText(getApplicationContext(), "Chat room not found!", Toast.LENGTH_SHORT).show();
             finish();
         }
 
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView = findViewById(R.id.recycler_view_chat);
 
         messageArrayList = new ArrayList<>();
 
@@ -184,13 +187,13 @@ public class ChatRoomActivity extends AppCompatActivity {
                         JSONObject userObj = obj.getJSONObject("member");
                         String userId = userObj.getString("member_id");
                         String userName = userObj.getString("name");
-                        Member user = new Member(userId, userName, null);
+                        Member member = new Member(userId, userName, null,null,null);
 
                         Message message = new Message();
                         message.setId(commentId);
                         message.setMessage(commentText);
                         message.setCreatedAt(createdAt);
-                        message.setMember(user);
+                        message.setMember(member);
 
                         messageArrayList.add(message);
 
@@ -279,13 +282,13 @@ public class ChatRoomActivity extends AppCompatActivity {
                             JSONObject userObj = commentObj.getJSONObject("member");
                             String userId = userObj.getString("member_id");
                             String userName = userObj.getString("username");
-                            Member user = new Member(userId, userName, null);
+                            Member member = new Member(userId, userName, null,null,null);
 
                             Message message = new Message();
                             message.setId(commentId);
                             message.setMessage(commentText);
                             message.setCreatedAt(createdAt);
-                            message.setMember(user);
+                            message.setMember(member);
 
                             messageArrayList.add(message);
                         }

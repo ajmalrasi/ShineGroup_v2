@@ -2,13 +2,13 @@
     <string name="app_name">Shine Group</string>
 
     <!-- Strings related to login -->
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Sign in</string>
+    <string name="prompt_email">Registered Email</string>
+    <string name="prompt_password">Registered Mobile Number</string>
+    <string name="action_sign_in">Login Securely</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_invalid_password">This number is too short</string>
+    <string name="error_incorrect_password">This number is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
@@ -37,4 +37,5 @@
     <string name="err_msg_email">Enter valid email address</string>
     <string name="title_activity_chat_room_discussion">ChatRoomDiscussionActivity</string>
     <string name="action_logout">Logout</string>
+    <string name="title_activity_mmmmmm">mmmmmm</string>
 </resources>

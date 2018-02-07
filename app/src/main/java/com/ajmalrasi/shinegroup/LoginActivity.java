@@ -14,11 +14,11 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -61,17 +61,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     /**
      * Id to identity READ_CONTACTS permission request.
      */
+
     private static final int REQUEST_READ_CONTACTS = 0;
 
     private static final String TAG = "Login Activity";
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
 
 
     // UI references.
@@ -79,23 +72,31 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    Button mEmailSignInButton;
     //Login Data stored in Shared Preference
-    private Session session;
-    private SQLiteHandler db;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
+        if (AppController.getInstance().getPrefManager().getMember() != null) {
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+        }
         setContentView(R.layout.activity_login);
         // Set up the login form.
+
+        Toolbar toolbar =  findViewById(R.id.toolbar_login);
+        setSupportActionBar(toolbar);
+
 
         mEmailView = findViewById(R.id.email);
         populateAutoComplete();
         mEmailView.addTextChangedListener(new MyTextWatcher(mEmailView));
 
         mPasswordView = findViewById(R.id.password);
+        mPasswordView.addTextChangedListener(new MyTextWatcher(mPasswordView));
 
         /**
          * Attempt login if the member has finished entering password
@@ -111,7 +112,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mEmailSignInButton = findViewById(R.id.email_sign_in_button);
+        mEmailSignInButton.setEnabled(false);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -121,20 +123,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-
-        // SQLite database handler
-        db = new SQLiteHandler(getApplicationContext());
-
-        // Session manager
-        session = new Session(getApplicationContext());
-
-        // Check if user is already logged in or not
-        if (session.isLoggedIn()) {
-            // User is already logged in. Take him to main activity
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
     }
 
     /**
@@ -207,12 +195,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (TextUtils.isEmpty(password) || !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
-
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
@@ -255,7 +242,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return password.length() > 9;
     }
 
     /**
@@ -331,6 +318,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         addEmailsToAutoComplete(emails);
+        //mEmailView.setError(false);
     }
 
     @Override
@@ -361,7 +349,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     /**
-     * function to verify login details in mysql db
+     * function to verify login details in
      * */
     private void checkLogin(final String email, final String password) {
         // Tag used to cancel the request
@@ -419,9 +407,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             @Override
             public void onErrorResponse(VolleyError error) {
+                showProgress(false);
                 NetworkResponse networkResponse = error.networkResponse;
                 Log.e(TAG, "Volley error: " + error.getMessage() + ", code: " + networkResponse);
                 Toast.makeText(getApplicationContext(), "Volley error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                finish();
             }
         }) {
 
@@ -430,7 +420,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 // Posting parameters to login url
                 Map<String, String> params = new HashMap<>();
                 params.put("email", email);
-                params.put("password", password);
+                params.put("pnumber", password);
                 return params;
             }
         };
@@ -448,7 +438,23 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             requestFocus(mEmailView);
             return false;
         } else {
+            mEmailView.setError(null);
             //mEmailView.setErrorEnabled(false);
+        }
+        return true;
+    }
+
+
+    // Validating Password
+    private boolean validatePassword() {
+        String password = mPasswordView.getText().toString();
+        if (password.isEmpty() || !isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            requestFocus(mPasswordView);
+            return false;
+        } else {
+            //mEmailView.setErrorEnabled(false);
+            mEmailSignInButton.setEnabled(true);
         }
         return true;
     }
@@ -469,9 +475,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         public void afterTextChanged(Editable editable) {
             switch (view.getId()) {
-                //case R.id.input_name:
-                //   validateName();
-                //   break;
+                case R.id.password:
+                    validatePassword();
+                   break;
                 case R.id.email:
                     validateEmail();
                     break;

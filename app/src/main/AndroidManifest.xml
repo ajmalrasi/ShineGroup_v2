@@ -27,7 +27,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LoginActivity" />
+        <activity android:name=".LoginActivity"
+            android:label="Login to Shine Group"/>
         <activity android:name=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -65,8 +66,9 @@
         </service>
         <!-- END Added for GCM -->
 
-        <activity android:name=".chat.activity.ChatActivity" />
-        <activity android:name=".chat.activity.ChatRoomActivity"></activity>
+        <activity android:name=".chat.activity.ChatActivity"
+            android:label="Chat Rooms"/>
+        <activity android:name=".chat.activity.ChatRoomActivity" />
     </application>
 
 </manifest>

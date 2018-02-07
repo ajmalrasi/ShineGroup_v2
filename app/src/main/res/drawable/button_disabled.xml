@@ -7,9 +7,9 @@
     <padding
         android:left="50dp"
         android:right="50dp"
-        android:top="5dp"
-        android:bottom="5dp"/>
+        android:top="1dp"
+        android:bottom="1dp"/>
 
-    <solid android:color="@color/colorPrimary"/>
+    <solid android:color="@color/button_disabled"/>
 
 </shape>

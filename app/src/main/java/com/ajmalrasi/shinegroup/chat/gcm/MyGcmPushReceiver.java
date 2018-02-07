@@ -86,7 +86,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
             try {
                 JSONObject datObj = new JSONObject(data);
 
-                String chatRoomId = datObj.getString("chat_room_id");
+                String chatRoomId = datObj.getString("chat_id");
 
                 JSONObject mObj = datObj.getJSONObject("message");
                 Message message = new Message();
@@ -94,7 +94,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 message.setId(mObj.getString("message_id"));
                 message.setCreatedAt(mObj.getString("created_at"));
 
-                JSONObject uObj = datObj.getJSONObject("user");
+                JSONObject uObj = datObj.getJSONObject("member");
 
                 // skip the message if the message belongs to same user as
                 // the user would be having the same message when he was sending
