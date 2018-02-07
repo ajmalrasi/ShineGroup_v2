@@ -11,8 +11,8 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_chat"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="10dp"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/linearLayout"
         android:scrollbars="vertical" />
 
     <LinearLayout
@@ -21,7 +21,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
-        android:weightSum="4">
+        android:weightSum="4"
+        android:id="@+id/linearLayout">
 
         <EditText android:id="@+id/message2"
             android:layout_width="0dp"

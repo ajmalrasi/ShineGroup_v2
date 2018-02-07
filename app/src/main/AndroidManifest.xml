@@ -68,7 +68,8 @@
 
         <activity android:name=".chat.activity.ChatActivity"
             android:label="Chat Rooms"/>
-        <activity android:name=".chat.activity.ChatRoomActivity" />
+        <activity android:name=".chat.activity.ChatRoomActivity"
+            android:label="Chat"/>
     </application>
 
 </manifest>

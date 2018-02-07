@@ -60,6 +60,12 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
         Toolbar toolbar = findViewById(R.id.toolbar_chat_room);
         setSupportActionBar(toolbar);
+        try{
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }catch (NullPointerException e){
+            Log.e(TAG, "onCreate: ",e);
+        }
+
         recyclerView = findViewById(R.id.recycler_view_chat_room);
 
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
@@ -72,10 +78,6 @@ public class ChatActivity extends AppCompatActivity {
                     // now subscribe to `global` topic to receive app wide notifications
                     String token = intent.getStringExtra("token");
                     subscribeToGlobalTopic();
-
-                    Toast.makeText(getApplicationContext(),
-                            "GCM registration token: " +
-                            token, Toast.LENGTH_LONG).show();
 
                 } else if (intent.getAction().equals(Config.SENT_TOKEN_TO_SERVER)) {
                     // gcm registration id is stored in our server's MySQL

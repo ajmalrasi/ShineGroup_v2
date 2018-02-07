@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 
 public class ChatThreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -103,6 +104,7 @@ public class ChatThreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public static String getTimeStamp(String dateStr) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        format.setTimeZone(TimeZone.getTimeZone("GMT+05:30"));
         String timestamp = "";
 
         today = today.length() < 2 ? "0" + today : today;

@@ -58,7 +58,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
-        Toolbar toolbar = findViewById(R.id.toolbar_chat_room);
+        Toolbar toolbar = findViewById(R.id.toolbar_chat);
         setSupportActionBar(toolbar);
 
         inputMessage = findViewById(R.id.message2);
@@ -69,8 +69,8 @@ public class ChatRoomActivity extends AppCompatActivity {
         String title = intent.getStringExtra("name");
 
         if (title!=null){
-            //getSupportActionBar().setTitle(title);
-            //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(title);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
 

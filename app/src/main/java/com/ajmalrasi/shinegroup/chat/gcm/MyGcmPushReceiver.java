@@ -92,7 +92,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 Message message = new Message();
                 message.setMessage(mObj.getString("message"));
                 message.setId(mObj.getString("message_id"));
-                message.setCreatedAt(mObj.getString("created_at"));
+                message.setCreatedAt(mObj.getString("created"));
 
                 JSONObject uObj = datObj.getJSONObject("member");
 
@@ -106,7 +106,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
 
                 Member member = new Member();
                 member.setId(uObj.getString("member_id"));
-                member.setEmail(uObj.getString("email"));
+                member.setEmail(uObj.getString("email_id"));
                 member.setName(uObj.getString("name"));
                 message.setMember(member);
 
@@ -133,7 +133,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
 
             } catch (JSONException e) {
                 Log.e(TAG, "json parsing error: " + e.getMessage());
-                Toast.makeText(getApplicationContext(), "Json parse error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "Json parse error: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
 
         } else {
@@ -163,7 +163,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 JSONObject uObj = datObj.getJSONObject("member");
                 Member member = new Member();
                 member.setId(uObj.getString("member_id"));
-                member.setEmail(uObj.getString("email"));
+                member.setEmail(uObj.getString("email_id"));
                 member.setName(uObj.getString("name"));
                 message.setMember(member);
 
@@ -193,7 +193,7 @@ public class MyGcmPushReceiver extends GcmListenerService {
                 } 
             }catch (JSONException e) {
                 Log.e(TAG, "json parsing error: " + e.getMessage());
-                Toast.makeText(getApplicationContext(), "Json parse error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "Json parse error: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
         } else {
             // the push notification is silent, may be other operations needed

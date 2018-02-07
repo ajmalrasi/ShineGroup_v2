@@ -5,7 +5,7 @@
     <color name="colorAccent">#9575CD</color>
     <color name="colorFont">#fafafa</color>
     <color name="colorBackground">#ededed</color>
-    <color name="list_divider">#00695c</color>
+    <color name="list_divider">#e0e0e0</color>
     <color name="bg_bubble_self">#e0e0e0</color>
     <color name="button_disabled">#D1C4E9</color>
     <color name="textColorPrimary">#000000</color>
