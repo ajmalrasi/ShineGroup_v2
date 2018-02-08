@@ -89,6 +89,8 @@ public class ChatRoomActivity extends AppCompatActivity {
         mAdapter = new ChatThreadAdapter(this, messageArrayList, selfUserId);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setReverseLayout(true);
+        layoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
@@ -177,7 +179,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                     JSONObject obj = new JSONObject(response);
 
                     // check for error
-                    if (obj.getBoolean("error") == false) {
+                    if (!obj.getBoolean("error")) {
                         JSONObject commentObj = obj.getJSONObject("message");
 
                         String commentId = commentObj.getString("message_id");
@@ -197,7 +199,12 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                         messageArrayList.add(message);
 
-                        mAdapter.notifyDataSetChanged();
+                        for (int i=0;i<messageArrayList.size();i++){
+                            System.out.println(messageArrayList.get(i).getMessage());
+                        }
+
+                        //mAdapter.notifyDataSetChanged();
+                        mAdapter.notifyItemInserted(messageArrayList.size());
                         if (mAdapter.getItemCount() > 1) {
                             // scrolling to bottom of the recycler view
                             recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount() - 1);
@@ -269,7 +276,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                     JSONObject obj = new JSONObject(response);
 
                     // check for error
-                    if (obj.getBoolean("error") == false) {
+                    if (!obj.getBoolean("error")) {
                         JSONArray commentsObj = obj.getJSONArray("messages");
 
                         for (int i = 0; i < commentsObj.length(); i++) {

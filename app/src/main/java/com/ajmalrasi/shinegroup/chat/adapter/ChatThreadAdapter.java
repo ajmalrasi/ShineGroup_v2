@@ -38,8 +38,8 @@ public class ChatThreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         public ViewHolder(View view) {
             super(view);
-            message = (TextView) itemView.findViewById(R.id.message);
-            timestamp = (TextView) itemView.findViewById(R.id.timestamp);
+            message = itemView.findViewById(R.id.message);
+            timestamp = itemView.findViewById(R.id.timestamp);
         }
     }
 
@@ -73,7 +73,6 @@ public class ChatThreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return new ViewHolder(itemView);
     }
 
-
     @Override
     public int getItemViewType(int position) {
         Message message = messageArrayList.get(position);
@@ -86,6 +85,7 @@ public class ChatThreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
+
         Message message = messageArrayList.get(position);
         ((ViewHolder) holder).message.setText(message.getMessage());
 
@@ -104,9 +104,8 @@ public class ChatThreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public static String getTimeStamp(String dateStr) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        format.setTimeZone(TimeZone.getTimeZone("GMT+05:30"));
+        //format.setTimeZone(TimeZone.getTimeZone("GMT+05:30"));
         String timestamp = "";
-
         today = today.length() < 2 ? "0" + today : today;
 
         try {
